@@ -1,0 +1,16 @@
+[Unit]
+Description=Gunicorn instance to serve Ikiru web_app
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/Ikiru
+ExecStart=/home/ubuntu/.local/bin/gunicorn --workers 3 --bind 0.0.0.0:5001 web_app.app:app
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -SIGTERM $MAINPID
+StandardOutput=file:/tmp/ikiru-access.log
+StandardError=file:/tmp/ikiru-error.log
+
+[Install]
+WantedBy=multi-user.target

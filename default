@@ -1,0 +1,80 @@
+server {
+        error_page 404 /404.html;
+        location = /404.html {
+                root /var/www/html;
+                internal;
+        }
+
+        root /var/www/html;
+
+        # Add index.php to the list if you are using PHP
+        index index.html;
+
+        server_name web-01.tamilore.tech 100.26.157.241;
+
+        location /hbnb_static {
+                alias /data/web_static/current;
+                index index.html;
+        }
+
+        rewrite ^/redirect_me https://github.com/tami-cp0 permanent;
+
+
+        location /airbnb-onepage {
+                proxy_pass http://0.0.0.0:5000/airbnb-onepage;
+        }
+
+        location ~ /airbnb-dynamic/number_odd_or_even/(?<number>\d+) {
+                proxy_pass http://0.0.0.0:5001/number_odd_or_even/$number;
+        }
+
+        location ~ /api/* {
+                proxy_pass http://0.0.0.0:5000;
+                include proxy_params;
+		proxy_cache off;
+        }
+
+        location / {
+                # proxy_pass http://0.0.0.0:5003/2-hbnb;
+		proxy_pass http://0.0.0.0:5001;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		include proxy_params;
+        }
+
+	location /static {
+		autoindex on;
+		# alias /home/ubuntu/AirBnB_clone_v4/web_dynamic/static/;
+		alias /home/ubuntu/Ikiru/web_app/static/;
+	}
+
+
+
+    listen [::]:443 ssl ipv6only=on; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/web-01.tamilore.tech/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/web-01.tamilore.tech/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+                       
+server {
+	if ($host = web-01.tamilore.tech) {
+        	return 301 https://$host$request_uri;
+	} # managed by Certbot
+
+    if ($host = 100.26.157.241) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        server_name web-01.tamilore.tech 100.26.157.241;
+    return 404; # managed by Certbot
+
+
+}
